@@ -1,0 +1,340 @@
+/*
+  Document Desk - the counter assistant for an equipment rental yard.
+
+  The look is taken from the yard itself rather than from a chat app: steel
+  greys, stencil-condensed headings, and the workshop's own tag system. The
+  maintenance manual tags every machine green (ready), yellow (waiting) or red
+  (do not rent), so sources are tagged the same way:
+
+     green tag  a quote that was checked against the document
+     red tag    no answer in the documents
+
+  That is the one bold idea here. Everything else stays quiet.
+*/
+
+:root {
+  --ink:        #14181c;   /* text */
+  --ink-soft:   #5b6670;
+  --concrete:   #e7e9ea;   /* page */
+  --panel:      #f7f8f8;   /* cards */
+  --steel:      #232c35;   /* rail */
+  --steel-line: #39424c;
+  --amber:      #e0a300;   /* the yard's safety accent, used sparingly */
+  --tag-green:  #2f7d5b;
+  --tag-red:    #b3402b;
+  --line:       #cfd4d7;
+
+  --display: "Barlow Semi Condensed", "Arial Narrow", system-ui, sans-serif;
+  --body: "IBM Plex Sans", system-ui, -apple-system, sans-serif;
+  --mono: "IBM Plex Mono", ui-monospace, "SF Mono", monospace;
+}
+
+* { box-sizing: border-box; }
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 286px 1fr;
+  background: var(--concrete);
+  color: var(--ink);
+  font-family: var(--body);
+  font-size: 15px;
+  line-height: 1.55;
+}
+
+/* ---------------------------------------------------------------- left rail */
+
+.rail {
+  background: var(--steel);
+  color: #dfe3e6;
+  padding: 26px 22px 22px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.rail-head { border-bottom: 1px solid var(--steel-line); padding-bottom: 18px; }
+
+.eyebrow {
+  font-family: var(--display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.18em;
+  font-size: 11px;
+  color: var(--amber);
+  margin: 0 0 6px;
+}
+
+.rail h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 27px;
+  line-height: 1.1;
+  letter-spacing: 0.01em;
+  margin: 0;
+  color: #fff;
+}
+
+.rail-label {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.14em;
+  font-size: 11px;
+  color: #8e9aa4;
+  margin: 0 0 10px;
+}
+
+.documents { list-style: none; margin: 0; padding: 0; display: grid; gap: 2px; }
+
+.documents a {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  align-items: baseline;
+  gap: 8px;
+  padding: 7px 8px;
+  margin: 0 -8px;
+  border-radius: 3px;
+  color: #dfe3e6;
+  text-decoration: none;
+  font-size: 13.5px;
+}
+
+.documents a:hover { background: #2c363f; }
+
+.documents .kind {
+  font-family: var(--mono);
+  font-size: 10.5px;
+  letter-spacing: 0.04em;
+  color: #8e9aa4;
+  white-space: nowrap;
+}
+
+.documents .kind.scan { color: var(--amber); }
+
+.rail-note {
+  margin: auto 0 0;
+  font-size: 12.5px;
+  line-height: 1.5;
+  color: #93a0aa;
+  border-top: 1px solid var(--steel-line);
+  padding-top: 16px;
+}
+
+/* -------------------------------------------------------------------- chat */
+
+.desk {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  padding: 0 28px;
+}
+
+.thread {
+  flex: 1;
+  overflow-y: auto;
+  padding: 34px 0 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 26px;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+}
+
+.opener h2 {
+  font-family: var(--display);
+  font-size: 34px;
+  font-weight: 700;
+  letter-spacing: 0.005em;
+  margin: 0 0 8px;
+}
+
+.opener p { margin: 0 0 20px; color: var(--ink-soft); max-width: 54ch; }
+
+.starters { display: flex; flex-wrap: wrap; gap: 8px; }
+
+.starters button {
+  font: inherit;
+  font-size: 13.5px;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 7px 14px;
+  cursor: pointer;
+  color: var(--ink);
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.starters button:hover { border-color: var(--ink-soft); background: #fff; }
+
+/* Question: right-aligned, quiet. */
+.ask {
+  align-self: flex-end;
+  max-width: 76%;
+  background: var(--steel);
+  color: #fff;
+  padding: 11px 15px;
+  border-radius: 12px 12px 3px 12px;
+}
+
+/* Answer */
+.reply { max-width: 92%; }
+
+.reply .text { white-space: pre-wrap; }
+
+.reply.refused .text {
+  border-left: 3px solid var(--tag-red);
+  padding-left: 14px;
+}
+
+/* The tag: a source, checked against the document. The notch on the left is
+   the hole a real tag hangs by. */
+.tags { display: grid; gap: 8px; margin-top: 14px; }
+
+.tag {
+  position: relative;
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-left: 3px solid var(--tag-green);
+  border-radius: 3px;
+  padding: 10px 14px 11px 18px;
+}
+
+.tag::before {
+  content: "";
+  position: absolute;
+  left: 7px;
+  top: 14px;
+  width: 5px;
+  height: 5px;
+  border-radius: 50%;
+  background: var(--line);
+}
+
+.tag-head {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  gap: 8px;
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 12px;
+  color: var(--ink-soft);
+}
+
+.tag-head .file { color: var(--ink); font-weight: 600; letter-spacing: 0.05em; }
+
+.tag-head .flag {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.02em;
+  text-transform: none;
+  color: var(--amber);
+  border: 1px solid currentColor;
+  border-radius: 2px;
+  padding: 0 4px;
+}
+
+.tag-head a { margin-left: auto; color: var(--ink-soft); text-decoration: none; border-bottom: 1px solid var(--line); }
+.tag-head a:hover { color: var(--ink); border-color: var(--ink); }
+
+.tag blockquote {
+  margin: 8px 0 0;
+  font-family: var(--mono);
+  font-size: 12.8px;
+  line-height: 1.6;
+  color: #333c44;
+}
+
+/* No answer: the red tag. */
+.no-source {
+  border-left: 3px solid var(--tag-red);
+  background: var(--panel);
+  border-radius: 3px;
+  padding: 9px 14px;
+  margin-top: 12px;
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: var(--tag-red);
+}
+
+/* Thinking: three bars filling, like a load gauge. */
+.working { display: flex; align-items: center; gap: 10px; color: var(--ink-soft); font-size: 13.5px; }
+.bars { display: flex; gap: 3px; }
+.bars i { width: 4px; height: 14px; background: var(--line); animation: fill 1s ease-in-out infinite; }
+.bars i:nth-child(2) { animation-delay: 0.14s; }
+.bars i:nth-child(3) { animation-delay: 0.28s; }
+
+@keyframes fill { 0%, 100% { background: var(--line); } 50% { background: var(--amber); } }
+
+/* ---------------------------------------------------------------- composer */
+
+.composer {
+  display: flex;
+  gap: 10px;
+  max-width: 760px;
+  width: 100%;
+  margin: 0 auto;
+  padding-top: 14px;
+  border-top: 1px solid var(--line);
+}
+
+.composer input {
+  flex: 1;
+  font: inherit;
+  padding: 12px 14px;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  background: #fff;
+  color: var(--ink);
+}
+
+.composer input:focus { outline: 2px solid var(--amber); outline-offset: 1px; border-color: transparent; }
+
+.composer button {
+  font-family: var(--display);
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 14px;
+  padding: 0 22px;
+  border: 0;
+  border-radius: 4px;
+  background: var(--ink);
+  color: #fff;
+  cursor: pointer;
+}
+
+.composer button:disabled { background: var(--ink-soft); cursor: default; }
+
+.composer-note {
+  max-width: 760px;
+  width: 100%;
+  margin: 8px auto 0;
+  padding-bottom: 14px;
+  font-size: 11.5px;
+  color: var(--ink-soft);
+  font-family: var(--mono);
+}
+
+/* ------------------------------------------------------------------ mobile */
+
+@media (max-width: 860px) {
+  body { grid-template-columns: 1fr; }
+  .rail { position: static; height: auto; padding: 18px 16px; gap: 16px; }
+  .rail-note, .rail-section { display: none; }
+  .desk { height: auto; min-height: calc(100vh - 92px); padding: 0 16px; }
+  .opener h2 { font-size: 27px; }
+  .reply, .ask { max-width: 100%; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .bars i { animation: none; background: var(--amber); }
+}

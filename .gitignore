@@ -1,0 +1,19 @@
+# Secrets
+.env
+
+# Python
+.venv/
+venv/
+__pycache__/
+*.pyc
+
+# Generated data (vector index, ingestion state)
+index/
+*.faiss
+
+# OS / editor
+.DS_Store
+.vscode/
+
+PLAN.md
+

@@ -1,0 +1,27 @@
+# --- Reading documents ---
+pymupdf==1.28.2             # PDF text per page + renders scanned pages to images for OCR
+pytesseract==0.3.13         # Python wrapper around the Tesseract OCR program (brew install tesseract)
+pillow==12.3.0              # image handling for OCR and for generating the "scanned" demo PDF
+python-docx==1.2.0          # reads (and, for the demo, writes) Word .docx files
+
+# --- Search ---
+sentence-transformers==6.1.0  # runs the local embedding model (BAAI/bge-small-en-v1.5)
+chromadb==1.5.9             # on-disk vector store with metadata and per-file deletes
+rank-bm25==0.2.2            # keyword search, catches exact codes like "EX-35"
+rapidfuzz==3.14.6           # fuzzy text matching, used to check the LLM's quotes against the source
+
+# --- Answer generation (two providers; see app/llm.py) ---
+groq==1.7.0                 # Groq free tier: the default
+google-genai==2.24.0        # Google Gemini free tier: the fallback
+
+# --- Front ends ---
+fastapi==0.141.1            # web API + serves the chat page and the source files
+uvicorn[standard]==0.53.0   # the server that runs FastAPI
+python-telegram-bot==22.8   # Telegram bot (long polling, no public URL needed)
+
+# --- Config, eval, demo docs, tests ---
+python-dotenv==1.2.3        # loads settings from .env
+pyyaml==6.0.3               # reads eval/questions.yaml
+rich==15.0.0                # prints the eval results as a readable table
+reportlab==5.0.1            # generates the demo PDFs
+pytest==9.1.1               # small unit tests

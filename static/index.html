@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Document Desk</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A//www.w3.org/2000/svg%22%20viewBox%3D%220%200%2032%2032%22%3E%3Crect%20width%3D%2232%22%20height%3D%2232%22%20rx%3D%226%22%20fill%3D%22%23232c35%22/%3E%3Cpath%20d%3D%22M11%208h9l5%205v11a2%202%200%200%201-2%202H11a2%202%200%200%201-2-2V10a2%202%200%200%201%202-2z%22%20fill%3D%22%23f7f8f8%22/%3E%3Ccircle%20cx%3D%2213.5%22%20cy%3D%2212%22%20r%3D%221.4%22%20fill%3D%22%23232c35%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2217%22%20width%3D%2210%22%20height%3D%221.6%22%20fill%3D%22%23232c35%22/%3E%3Crect%20x%3D%2212%22%20y%3D%2221%22%20width%3D%227%22%20height%3D%221.6%22%20fill%3D%22%23e0a300%22/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+
+<!-- Left rail: what the assistant can actually see. The first thing anyone
+     wants to know is whether their document is in there. -->
+<aside class="rail">
+  <div class="rail-head">
+    <p class="eyebrow">Document desk</p>
+    <h1 id="company">&nbsp;</h1>
+  </div>
+
+  <div class="rail-section">
+    <p class="rail-label">Indexed documents</p>
+    <ul id="documents" class="documents"></ul>
+  </div>
+
+  <p class="rail-note">
+    Answers come only from these documents. Every answer shows the line it came from.
+  </p>
+</aside>
+
+<!-- Chat -->
+<main class="desk">
+  <div id="thread" class="thread">
+    <div class="opener">
+      <h2>Ask about the paperwork.</h2>
+      <p>Rental terms, damage charges, service intervals, branch hours, staff policy. Answers cite the document and page, or say the answer isn't there.</p>
+      <div class="starters" id="starters">
+        <button type="button" data-q="A customer brought the mini excavator back two days late. What do we charge?">Late return on a mini excavator</button>
+        <button type="button" data-q="How often do we change the hydraulic oil on the EX-35?">EX-35 hydraulic oil interval</button>
+        <button type="button" data-q="How much do we charge for a cracked cab window?">Charge for a cracked cab window</button>
+        <button type="button" data-q="How many weeks of paid parental leave do employees get?">Paid parental leave</button>
+      </div>
+    </div>
+  </div>
+
+  <form class="composer" id="composer" autocomplete="off">
+    <input id="question" type="text" maxlength="500" placeholder="Type a question" aria-label="Your question">
+    <button id="send" type="submit">Ask</button>
+  </form>
+  <p class="composer-note" id="footnote">&nbsp;</p>
+</main>
+
+<script src="/static/app.js"></script>
+</body>
+</html>

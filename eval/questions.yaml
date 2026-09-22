@@ -1,0 +1,158 @@
+# Evaluation set for the Ridgeline demo documents.
+#
+# 20 questions: 15 the documents can answer, and 5 they cannot. The unanswerable
+# ones are the important half - they are the difference between an assistant a
+# business can trust and one that sounds confident while inventing figures.
+#
+# Fields:
+#   id          short handle, used in the results table
+#   question    asked exactly as a member of staff would type it
+#   answerable  false means the assistant is expected to refuse
+#   expected    what a correct answer must contain (used by the judge, and by you
+#               when reading the results); for unanswerable ones, what it must NOT do
+#   sources     file(s) the answer should come from (used for the retrieval score)
+#   note        why the question is in the set
+
+questions:
+  - id: late-return
+    question: A customer brought the mini excavator back two days late. What do we charge?
+    answerable: true
+    expected: >-
+      A late charge of 1.5 times the daily rate for each day or part-day late, which is
+      $1,155 for an EX-35 at $385 a day, plus a $35 late return administration fee.
+    sources: [Ridgeline_Rental_Agreement_2026.pdf, Returns_and_Damages_Policy_scanned.pdf]
+    note: Needs two documents, one of them the scanned policy. This is the main demo question.
+
+  - id: grace-period
+    question: How late can a customer return equipment before we start charging extra?
+    answerable: true
+    expected: Up to 59 minutes after the end of the rental period is treated as on time.
+    sources: [Ridgeline_Rental_Agreement_2026.pdf]
+
+  - id: ex35-hydraulic-oil
+    question: How often do we change the hydraulic oil on the EX-35?
+    answerable: true
+    expected: Every 1,000 engine hours or every 12 months, whichever comes first.
+    sources: [Fleet_Maintenance_Manual.pdf]
+    note: Exact equipment code, the kind of thing keyword search is needed for.
+
+  - id: generator-oil
+    question: What is the engine oil change interval for the GN-7500 generator?
+    answerable: true
+    expected: Every 100 hours.
+    sources: [Fleet_Maintenance_Manual.pdf]
+
+  - id: skid-steer-fluid
+    question: Which hydraulic fluid goes in the SL-750 skid steer?
+    answerable: true
+    expected: Universal tractor hydraulic fluid (UTHF), and fluids must not be mixed.
+    sources: [Fleet_Maintenance_Manual.pdf]
+
+  - id: refuel-charge
+    question: What do we charge if equipment comes back with a half-empty tank?
+    answerable: true
+    expected: >-
+      The fuel used is charged at $6.25 per gallon for gasoline or $7.50 per gallon for
+      diesel, plus a $25 refuelling service fee per item.
+    sources: [Ridgeline_Rental_Agreement_2026.pdf]
+
+  - id: cleaning-fee
+    question: A skid steer came back caked in mud. Is there a cleaning fee?
+    answerable: true
+    expected: >-
+      Yes, $150 per item for excavators and skid steers ($75 for standard equipment) when
+      cleaning takes more than 15 minutes.
+    sources: [Returns_and_Damages_Policy_scanned.pdf]
+    note: Scanned document, read by OCR.
+
+  - id: broken-window
+    question: How much do we charge for a cracked cab window?
+    answerable: true
+    expected: $380 per pane.
+    sources: [Returns_and_Damages_Policy_scanned.pdf]
+    note: Scanned document, and the figure sits inside a table.
+
+  - id: dispute-window
+    question: A customer disagrees with a damage charge. How long do they have to dispute it?
+    answerable: true
+    expected: Five business days from receiving the inspection report, in writing.
+    sources: [Returns_and_Damages_Policy_scanned.pdf]
+
+  - id: damage-waiver
+    question: What does the damage waiver cost and what does it actually cover?
+    answerable: true
+    expected: >-
+      12% of the rental charges, limiting liability for accidental damage to a $500
+      deductible per incident, with exclusions such as theft without a police report,
+      misuse, tyre or track punctures and lost keys.
+    sources: [Ridgeline_Rental_Agreement_2026.pdf]
+
+  - id: vacation-seven-years
+    question: How many vacation days does someone get after seven years with us?
+    answerable: true
+    expected: 20 days per year (year 6 onwards).
+    sources: [Employee_Handbook_2026.docx]
+    note: Word file, and the answer is in a table.
+
+  - id: sick-days
+    question: How many paid sick days do full-time staff get?
+    answerable: true
+    expected: Six paid sick days per calendar year, which do not carry over.
+    sources: [Employee_Handbook_2026.docx]
+
+  - id: doctors-note
+    question: When does an employee need to bring a doctor's note?
+    answerable: true
+    expected: After more than three consecutive working days of absence.
+    sources: [Employee_Handbook_2026.docx]
+
+  - id: twin-falls-saturday
+    question: Is the Twin Falls branch open on Saturday?
+    answerable: true
+    expected: No, Twin Falls is closed on Saturdays and Sundays.
+    sources: [Branch_FAQ_and_Hours.txt]
+
+  - id: payment-methods
+    question: Can a customer pay by personal check?
+    answerable: true
+    expected: >-
+      No. Cards are accepted, cash up to $500 with a card for the deposit, and ACH for
+      approved commercial accounts, but personal checks are not accepted.
+    sources: [Branch_FAQ_and_Hours.txt]
+
+  # ---- The documents cannot answer these. The assistant must refuse. ----
+
+  - id: parental-leave
+    question: How many weeks of paid parental leave do employees get?
+    answerable: false
+    expected: >-
+      Must refuse. The handbook covers vacation, sick, bereavement and jury duty leave but
+      says nothing about parental leave, so any number given is invented.
+    sources: []
+    note: The trap question for the demo - near-miss content makes guessing tempting.
+
+  - id: retirement-match
+    question: What is our 401k match?
+    answerable: false
+    expected: Must refuse. No retirement benefit is described anywhere in the documents.
+    sources: []
+
+  - id: used-equipment-sales
+    question: Do we sell our used equipment to customers, and at what discount?
+    answerable: false
+    expected: Must refuse. The documents only cover renting, never selling.
+    sources: []
+
+  - id: crane-rate
+    question: What is the daily rate for a 60-ton crane?
+    answerable: false
+    expected: >-
+      Must refuse. Cranes are not in the fleet or the rate schedule. Quoting another
+      machine's rate would be wrong.
+    sources: []
+
+  - id: wifi-password
+    question: What is the Wi-Fi password at the Nampa branch?
+    answerable: false
+    expected: Must refuse. Branch details are in the documents, but no Wi-Fi password is.
+    sources: []
