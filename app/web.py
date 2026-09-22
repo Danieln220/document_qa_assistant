@@ -22,6 +22,8 @@ from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
+from app import history
+from app.admin import router as admin_router
 from app.answer import Answer, answer
 from app.config import PROJECT_ROOT, settings
 from app.index import index_stats
@@ -77,6 +79,16 @@ def ask(payload: Question) -> JSONResponse:
     """Answer one question. Always returns 200 with a readable result."""
     try:
         result = answer(payload.question)
+        # Recorded for the owner's screen: what was asked, and whether the
+        # documents could answer it.
+        history.record(
+            question=payload.question,
+            answered=result.answered,
+            reason=result.reason,
+            sources=[c.source_file for c in result.citations],
+            channel="web",
+            seconds=result.seconds,
+        )
     except Exception as exc:  # last line of defence; the detail stays in the log
         print(f"[web] unexpected failure: {exc}")
         return JSONResponse({
@@ -127,5 +139,9 @@ def document_file(path: str) -> FileResponse:
     # instead of downloading the file.
     return FileResponse(target, headers={"Content-Disposition": f'inline; filename="{target.name}"'})
 
+
+# The owner's screen lives in its own module; its routes are added before the
+# static mount so /admin resolves to the page rather than a file.
+api.include_router(admin_router)
 
 api.mount("/static", StaticFiles(directory=STATIC_DIR), name="static")

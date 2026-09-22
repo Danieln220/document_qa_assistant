@@ -338,3 +338,207 @@ body {
 @media (prefers-reduced-motion: reduce) {
   .bars i { animation: none; background: var(--amber); }
 }
+
+/* =========================================================================
+   The owner's desk (/admin)
+
+   Same materials as the chat - steel, concrete, the amber accent - but laid
+   out as a workbench rather than a conversation: two panels, documents on the
+   left, what staff asked on the right.
+   ========================================================================= */
+
+body.owner {
+  display: block;
+  background: var(--concrete);
+}
+
+.owner-head {
+  background: var(--steel);
+  color: #fff;
+  padding: 20px 28px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+}
+
+.owner-head h1 {
+  font-family: var(--display);
+  font-weight: 700;
+  font-size: 26px;
+  margin: 0;
+  line-height: 1.1;
+}
+
+.switch {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 12px;
+  color: #dfe3e6;
+  text-decoration: none;
+  border: 1px solid var(--steel-line);
+  border-radius: 3px;
+  padding: 8px 14px;
+}
+
+.switch:hover { border-color: var(--amber); color: var(--amber); }
+
+.owner-main {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 22px;
+  padding: 26px 28px 40px;
+  align-items: start;
+}
+
+.panel {
+  background: #fff;
+  border: 1px solid var(--line);
+  border-radius: 4px;
+  padding: 20px 22px 24px;
+}
+
+.panel-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 12px;
+  border-bottom: 1px solid var(--line);
+  padding-bottom: 12px;
+  margin-bottom: 16px;
+}
+
+.panel h2 {
+  font-family: var(--display);
+  font-size: 21px;
+  font-weight: 700;
+  margin: 0;
+}
+
+.sub {
+  font-family: var(--display);
+  font-size: 15px;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  margin: 26px 0 4px;
+}
+
+.muted { color: var(--ink-soft); margin: 0; }
+.small { font-size: 12.5px; }
+
+/* Upload */
+.drop {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  border: 1.5px dashed var(--line);
+  border-radius: 4px;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  transition: border-color 120ms ease, background 120ms ease;
+}
+
+.drop:hover, .drop.over { border-color: var(--amber); background: #fffdf6; }
+
+.drop-title {
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.status { margin: 10px 0 0; font-size: 13.5px; padding: 8px 12px; border-radius: 3px; }
+.status.ok { background: #eef6f1; border-left: 3px solid var(--tag-green); }
+.status.bad { background: #fbeeeb; border-left: 3px solid var(--tag-red); }
+.status.busy { background: var(--panel); border-left: 3px solid var(--amber); }
+
+/* Documents table */
+.documents-table { width: 100%; border-collapse: collapse; margin-top: 18px; font-size: 14px; }
+
+.documents-table th {
+  text-align: left;
+  font-family: var(--display);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  font-size: 11px;
+  color: var(--ink-soft);
+  font-weight: 600;
+  padding-bottom: 8px;
+  border-bottom: 1px solid var(--line);
+}
+
+.documents-table td { padding: 10px 0; border-bottom: 1px solid var(--line); vertical-align: middle; }
+.documents-table .right, .documents-table th.right { text-align: right; }
+.documents-table a { color: var(--ink); text-decoration: none; border-bottom: 1px solid var(--line); }
+.documents-table a:hover { border-color: var(--ink); }
+
+.kind-cell { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); }
+.kind-cell.scan { color: var(--amber); }
+
+.remove {
+  font: inherit;
+  font-size: 12.5px;
+  background: none;
+  border: 1px solid var(--line);
+  border-radius: 3px;
+  padding: 4px 10px;
+  cursor: pointer;
+  color: var(--ink-soft);
+}
+
+.remove:hover { border-color: var(--tag-red); color: var(--tag-red); }
+
+/* Counts */
+.tiles { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+
+.tile { background: var(--panel); border: 1px solid var(--line); border-radius: 3px; padding: 12px 14px; }
+.tile b { display: block; font-family: var(--display); font-size: 27px; line-height: 1.1; }
+.tile span { font-size: 12px; color: var(--ink-soft); }
+.tile.gap b { color: var(--tag-red); }
+
+/* Gap list and question log */
+.gaps, .asked { list-style: none; margin: 10px 0 0; padding: 0; display: grid; gap: 6px; }
+
+.gaps li {
+  display: flex;
+  gap: 10px;
+  align-items: baseline;
+  background: var(--panel);
+  border-left: 3px solid var(--tag-red);
+  border-radius: 3px;
+  padding: 8px 12px;
+  font-size: 14px;
+}
+
+.gaps .times {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--tag-red);
+  white-space: nowrap;
+}
+
+.asked li {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 10px;
+  align-items: baseline;
+  padding: 7px 0;
+  border-bottom: 1px solid var(--line);
+  font-size: 14px;
+}
+
+.asked .when { font-family: var(--mono); font-size: 11px; color: var(--ink-soft); white-space: nowrap; }
+.asked .q .no { color: var(--tag-red); font-size: 12px; margin-left: 6px; }
+.asked .sources { display: block; font-size: 12px; color: var(--ink-soft); }
+
+.filter { font-size: 13px; color: var(--ink-soft); display: inline-flex; gap: 6px; align-items: center; margin-top: 8px; }
+
+.empty { color: var(--ink-soft); font-size: 13.5px; padding: 10px 0; }
+
+@media (max-width: 900px) {
+  .owner-main { grid-template-columns: 1fr; padding: 18px 16px 32px; }
+  .owner-head { padding: 16px; }
+}

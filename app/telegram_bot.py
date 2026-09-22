@@ -29,6 +29,7 @@ from telegram.constants import ChatAction, ParseMode
 from telegram.error import Conflict
 from telegram.ext import Application, CommandHandler, ContextTypes, MessageHandler, filters
 
+from app import history
 from app.answer import Answer, answer
 from app.config import settings
 
@@ -108,6 +109,11 @@ async def handle_question(update: Update, context: ContextTypes.DEFAULT_TYPE) ->
 
     await update.message.reply_text(
         format_answer(result), parse_mode=ParseMode.HTML, disable_web_page_preview=True
+    )
+    history.record(
+        question=question, answered=result.answered, reason=result.reason,
+        sources=[c.source_file for c in result.citations], channel="telegram",
+        seconds=result.seconds,
     )
     print(f"[telegram] chat {chat_id}: {'answered' if result.answered else result.reason} "
           f"in {result.seconds:.1f}s - {question[:60]}")

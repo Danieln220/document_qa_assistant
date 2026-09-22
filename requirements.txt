@@ -17,6 +17,7 @@ google-genai==2.24.0        # Google Gemini free tier: the fallback
 # --- Front ends ---
 fastapi==0.141.1            # web API + serves the chat page and the source files
 uvicorn[standard]==0.53.0   # the server that runs FastAPI
+python-multipart==0.0.32     # lets the owner's page upload a document
 python-telegram-bot==22.8   # Telegram bot (long polling, no public URL needed)
 
 # --- Config, eval, demo docs, tests ---

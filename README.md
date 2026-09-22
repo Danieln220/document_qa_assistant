@@ -2,7 +2,7 @@
 
 An AI assistant that answers staff questions from a company's PDFs and documents, citing the file and page for every answer, and saying "I don't know" when the documents don't cover it.
 
-> Status: build complete (M1-M9). Next: the demo script and handoff documents. See `PLAN.md` for the full plan.
+> Status: complete. See [`DEMO.md`](DEMO.md) for the recording script and [`HANDOFF.md`](HANDOFF.md) for the client handover template. See `PLAN.md` for the full plan.
 
 ## Setup
 
@@ -34,6 +34,7 @@ cp .env.example .env        # then fill in the values (see below)
 | `GROQ_API_KEY` / `GROQ_MODEL` | Groq key and model ID | answering (M5) |
 | `GEMINI_API_KEY` / `GEMINI_MODEL` | Google AI Studio key and model, used as the fallback | optional |
 | `TOP_K` / `RELEVANCE_THRESHOLD` | How many passages the LLM reads; the minimum match score before refusing | tuned at M6 |
+| `LOG_QUESTIONS` / `ADMIN_PASSWORD` / `MAX_UPLOAD_MB` | The owner's desk: recording, password, upload limit | owner's desk |
 | `TELEGRAM_BOT_TOKEN` | Token from @BotFather | Telegram |
 | `TELEGRAM_ALLOWED_CHAT_IDS` | Comma-separated chat IDs allowed to use the bot. Empty means nobody. | Telegram |
 
@@ -135,6 +136,29 @@ open http://localhost:8000
 
 The page is three files (`static/index.html`, `style.css`, `app.js`) with no framework and no build step, so a client's own developer can read it.
 
+## The owner's desk
+
+```
+http://localhost:8000/admin
+```
+
+![The owner's desk](screenshots/owner-desk.png)
+
+So the owner never has to ask anyone for the two things that recur:
+
+- **Documents.** Drag a file in to add it, and it is indexed straight away, so staff can ask about it seconds later. Remove one and its passages go with it, so an old policy can never be quoted again. Uploading a file with the same name replaces it.
+- **What staff asked**, and more usefully, **the questions the documents could not answer**, grouped and counted. "What's our parental leave policy?" asked eleven times is not an AI problem; it is a missing page in the handbook.
+
+Settings:
+
+| Setting | Effect |
+|---|---|
+| `LOG_QUESTIONS` | `false` stops questions being recorded at all. Everything is stored locally in `index/questions.db`, and nothing leaves the machine. |
+| `ADMIN_PASSWORD` | If set, the page and every owner endpoint ask for it. **Empty means open**, which is fine on a personal laptop and not fine on a network. |
+| `MAX_UPLOAD_MB` | Largest file accepted through the browser (default 40). |
+
+Uploads accept PDF, Word and text only; names are stripped of any path before anything is written.
+
 ## Telegram
 
 The same assistant on a phone, for staff who are in the yard rather than at a desk.
@@ -176,6 +200,17 @@ What is measured:
 
 Each run writes a full report to `eval/results/`, question by question, which is the thing to show a client who asks how accurate it is. A run makes about 35 model calls and takes a few minutes on the free tier, because it waits out the rate limit instead of failing.
 
+## Recording the demo, and resetting between takes
+
+```bash
+.venv/bin/python scripts/reset_demo.py          # rebuild documents, re-index, check the demo beats
+.venv/bin/python scripts/reset_demo.py --check  # say what it would do, change nothing
+```
+
+The reset rebuilds the five demo documents from their text sources, deletes the index, re-indexes, and then **asks the four questions the demo depends on** to confirm they still give the scripted answers. It never touches `.env`.
+
+[`DEMO.md`](DEMO.md) is the click-by-click script for a 75-90 second recording, with what to say over each step and what to do if something goes wrong mid-take.
+
 ## Tests
 
 ```bash
@@ -194,4 +229,6 @@ Each run writes a full report to `eval/results/`, question by question, which is
 - **Telegram runs only while the program runs**, on your machine. Always-on hosting is a Premium item.
 - **One bot instance per token.** Starting a second copy stops itself with a message; Telegram allows only one.
 - **English only**, as indexed and prompted today.
+- **The owner's page is open unless `ADMIN_PASSWORD` is set.** It can add and delete documents, so set one before the assistant is reachable by anyone else.
+- **Questions are recorded locally** (`index/questions.db`) unless `LOG_QUESTIONS=false`. Tell the client, since staff questions can be personal.
 - Starting the environment check prints a Hugging Face warning about unauthenticated downloads. It is harmless.

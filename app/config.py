@@ -76,6 +76,17 @@ class Settings:
     # calling the LLM. Tuned against the eval set at milestone M6.
     relevance_threshold: float = field(default_factory=lambda: float(_env("RELEVANCE_THRESHOLD", "0.5")))
 
+    # --- The owner's screen ---
+    # Every question is recorded locally so the owner can see what staff ask and,
+    # more usefully, which questions the documents could not answer. Set to
+    # false for a client who would rather nothing were logged.
+    log_questions: bool = field(default_factory=lambda: _env("LOG_QUESTIONS", "true").lower() != "false")
+    # If set, the owner's page asks for this password. Leave empty on a laptop;
+    # set it before the assistant is reachable by anyone else.
+    admin_password: str = field(default_factory=lambda: _env("ADMIN_PASSWORD"))
+    # Largest document that may be uploaded through the browser, in megabytes.
+    max_upload_mb: int = field(default_factory=lambda: int(_env("MAX_UPLOAD_MB", "40")))
+
     # --- Telegram ---
     telegram_bot_token: str = field(default_factory=lambda: _env("TELEGRAM_BOT_TOKEN"))
     # Only these chat IDs may use the bot, so strangers can't query company documents.
