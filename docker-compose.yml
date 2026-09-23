@@ -1,0 +1,47 @@
+# One command to run the assistant on a client's machine:
+#
+#   docker compose up -d
+#
+# The two folders that matter live OUTSIDE the container, on the host:
+#
+#   ./documents   their documents. Drop a file in here (or use the owner's page).
+#   ./index       the search index, rebuilt from the documents whenever needed.
+#
+# That separation is what makes updates safe: a new version of the image can
+# replace the old one without touching a single document.
+
+services:
+  assistant:
+    build: .
+    image: document-qa-assistant
+    container_name: document-qa-assistant
+    # Starts again by itself after a crash, and after the computer reboots.
+    # For a machine in a back office, this is the difference between "it works"
+    # and "someone has to remember to start it".
+    restart: unless-stopped
+    env_file: .env
+    ports:
+      # Reachable as http://localhost:8000 on this machine, and as
+      # http://<this-machine's-address>:8000 from the rest of the office.
+      - "8000:8000"
+    volumes:
+      - ./documents:/app/documents
+      - ./index:/app/index
+
+  # The Telegram bot: the same image, told to run the bot instead of the web
+  # server. It is off by default, because not every client wants it.
+  #
+  #   docker compose --profile telegram up -d
+  telegram:
+    build: .
+    image: document-qa-assistant
+    container_name: document-qa-telegram
+    restart: unless-stopped
+    env_file: .env
+    volumes:
+      - ./documents:/app/documents
+      - ./index:/app/index
+    command: ["python", "-m", "app.telegram_bot"]
+    profiles: ["telegram"]
+    depends_on:
+      - assistant

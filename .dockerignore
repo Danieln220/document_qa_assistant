@@ -1,0 +1,21 @@
+# Keep the build small and the image clean: none of this belongs inside it.
+.venv/
+venv/
+__pycache__/
+*.pyc
+.pytest_cache/
+.git/
+.gitignore
+
+# Secrets are passed in at run time (env_file), never baked into the image.
+.env
+
+# Data lives on the host and is mounted in.
+index/
+documents/
+
+# Not needed to run the assistant.
+screenshots/
+eval/results/
+docs/
+*.md

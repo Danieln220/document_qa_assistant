@@ -122,8 +122,15 @@ Two settings worth knowing:
 ## The web chat
 
 ```bash
+./scripts/start.sh            # starts the server and opens the browser
+./scripts/start.sh admin      # opens the owner's desk instead
+./scripts/start.sh 8080       # a different port
+```
+
+Or run the server directly:
+
+```bash
 .venv/bin/uvicorn app.web:api --port 8000
-open http://localhost:8000
 ```
 
 ![The web chat, answering and refusing](screenshots/web-chat-answer-and-refusal.png)
@@ -210,6 +217,18 @@ Each run writes a full report to `eval/results/`, question by question, which is
 The reset rebuilds the five demo documents from their text sources, deletes the index, re-indexes, and then **asks the four questions the demo depends on** to confirm they still give the scripted answers. It never touches `.env`.
 
 [`DEMO.md`](DEMO.md) is the click-by-click script for a 75-90 second recording, with what to say over each step and what to do if something goes wrong mid-take.
+
+## Running it with Docker (how a client gets it)
+
+```bash
+cp .env.example .env     # add their key, company name and ADMIN_PASSWORD
+docker compose up -d --build
+docker compose exec assistant python scripts/ingest.py
+```
+
+The image is about 720 MB and builds in under 7 minutes. One command instead of installing Python, Tesseract and a dozen libraries by hand, and it behaves the same on Mac, Windows and Linux. Their `documents/` folder and the index stay **outside** the container, so a new version never touches their files, and `restart: unless-stopped` brings it back after a reboot.
+
+Full install guide, day-to-day commands, what to check before leaving a client's office, and how to explain it to them in plain words: [`docs/deploying-with-docker.md`](docs/deploying-with-docker.md).
 
 ## Tests
 
