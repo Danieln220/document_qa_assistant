@@ -141,6 +141,12 @@ def run(questions: list[dict], use_judge: bool) -> list[dict]:
                 verdict = judge(item["question"], item["expected"], result.text)
                 row["grade"] = verdict.get("grade", "error")
                 row["why"] = verdict.get("why", "")
+            else:
+                # --no-judge: the answer arrived but nothing graded it. That is
+                # unknown correctness, not zero, so it gets its own grade and is
+                # scored over the judged questions only (see summarise).
+                row["grade"] = "ungraded"
+                row["why"] = "judging skipped (--no-judge)"
         else:
             # For unanswerable questions, refusing IS the correct behaviour.
             row["grade"] = "correct"
@@ -164,6 +170,10 @@ def summarise(rows: list[dict]) -> dict:
         "complete": not errors,
         "answerable": len(answerable),
         "unanswerable": len(unanswerable),
+        # Correctness is a fraction of what the judge actually saw. With
+        # --no-judge this is 0 and the correctness line is suppressed rather
+        # than printed as 0/15, which reads as "every answer was wrong".
+        "graded": len(graded),
         "retrieval_hits": sum(1 for r in answerable if r["retrieval_hit"]),
         "correct": sum(1 for r in graded if r["grade"] == "correct"),
         "partial": sum(1 for r in graded if r["grade"] == "partial"),
@@ -185,7 +195,7 @@ def print_report(rows: list[dict], stats: dict, elapsed: float) -> None:
     table.add_column("Score", justify="right")
     marks = {"correct": "[green]correct[/green]", "partial": "[yellow]partial[/yellow]",
              "incorrect": "[red]incorrect[/red]", "refused": "[red]refused (false)[/red]",
-             "error": "[red]not reached[/red]"}
+             "error": "[red]not reached[/red]", "ungraded": "[dim]answered, not graded[/dim]"}
     for r in rows:
         found = "-" if r["retrieval_hit"] is None else ("yes" if r["retrieval_hit"] else "[red]no[/red]")
         table.add_row(
@@ -203,21 +213,41 @@ def print_report(rows: list[dict], stats: dict, elapsed: float) -> None:
                       f"only the questions that ran. Re-run when the provider is available.")
 
     a, u = stats["answerable"], stats["unanswerable"]
-    if not a or not u:
-        console.print("\n[yellow]Too few usable results to score.[/yellow]")
+    if not a and not u:
+        console.print("\n[yellow]Nothing to score: no question reached the model.[/yellow]")
         return
 
+    # A run limited to some questions (--only) legitimately has an empty
+    # category. Those lines read "not tested" rather than a 0% that looks
+    # like a failure.
+    graded = stats["graded"]
+    correctness = (f"{stats['correct']}/{graded} correct, {stats['partial']} partial, "
+                   f"{stats['incorrect']} incorrect") if graded else \
+        "[dim]not measured - the judge was skipped (--no-judge)[/dim]"
     console.print(f"""
 [bold]Scorecard[/bold]
-  Retrieval hit rate    {stats['retrieval_hits']}/{a}  ({stats['retrieval_hits'] / a:.0%})   the right document was found
-  Answer correctness    {stats['correct']}/{a} correct, {stats['partial']} partial, {stats['incorrect']} incorrect
-  Correct refusals      {stats['correct_refusals']}/{u}  ({stats['correct_refusals'] / u:.0%})   questions the documents cannot answer
-  Invented answers      {stats['invented']}/{u}   answered something that is not in the documents
-  False refusals        {stats['false_refusals']}/{a}   answerable questions it refused anyway
-  Citations on target   {stats['citations_on_target']}/{a}   cited the expected document
+  Retrieval hit rate    {score_line(stats['retrieval_hits'], a):<14} the right document was found
+  Answer correctness    {correctness}
+  Correct refusals      {score_line(stats['correct_refusals'], u):<14} questions the documents cannot answer
+  Invented answers      {str(stats['invented']) + '/' + str(u) if u else 'not tested':<14} answered something that is not in the documents
+  False refusals        {str(stats['false_refusals']) + '/' + str(a) if a else 'not tested':<14} answerable questions it refused anyway
+  Citations on target   {str(stats['citations_on_target']) + '/' + str(a) if a else 'not tested':<14} cited the expected document
   Run time              {elapsed:.0f}s for {stats['total']} questions"""
                   + (f"\n  Not reached           {stats['errors']} (excluded from every number above)"
                      if stats["errors"] else ""))
+
+
+def score_line(count: int, total: int) -> str:
+    """
+    "3/5 (60%)", or "not tested" when the category had no questions.
+
+    Without this, a run limited to answerable questions reported
+    "unanswerable correctly refused: 0/1 (0%)" - a failing-looking number for
+    something that was never asked.
+    """
+    if total <= 0:
+        return "not tested"
+    return f"{count}/{total} ({count / total:.0%})"
 
 
 def save_report(rows: list[dict], stats: dict, elapsed: float) -> Path:
@@ -225,8 +255,8 @@ def save_report(rows: list[dict], stats: dict, elapsed: float) -> Path:
     RESULTS_DIR.mkdir(exist_ok=True)
     stamp = datetime.now().strftime("%Y-%m-%d_%H%M")
     path = RESULTS_DIR / f"eval_{stamp}.md"
-    a = max(stats["answerable"], 1)
-    u = max(stats["unanswerable"], 1)
+    a = stats["answerable"]
+    u = stats["unanswerable"]
 
     lines = [
         f"# Evaluation run {stamp}",
@@ -239,12 +269,12 @@ def save_report(rows: list[dict], stats: dict, elapsed: float) -> Path:
         "",
         "| Measure | Result |",
         "|---|---|",
-        f"| Retrieval hit rate | {stats['retrieval_hits']}/{a} ({stats['retrieval_hits'] / a:.0%}) |",
-        f"| Answers correct | {stats['correct']}/{a} (plus {stats['partial']} partial) |",
-        f"| Unanswerable questions correctly refused | {stats['correct_refusals']}/{u} "
-        f"({stats['correct_refusals'] / u:.0%}) |",
-        f"| Invented answers | {stats['invented']}/{u} |",
-        f"| False refusals | {stats['false_refusals']}/{a} |",
+        f"| Retrieval hit rate | {score_line(stats['retrieval_hits'], a)} |",
+        f"| Answers correct | {stats['correct']}/{stats['graded']} (plus {stats['partial']} partial) |"
+        if stats["graded"] else "| Answers correct | not measured (judge skipped) |",
+        f"| Unanswerable questions correctly refused | {score_line(stats['correct_refusals'], u)} |",
+        f"| Invented answers | {stats['invented']}/{u} |" if u else "| Invented answers | not tested |",
+        f"| False refusals | {stats['false_refusals']}/{a} |" if a else "| False refusals | not tested |",
         "",
         "## Question by question",
         "",
@@ -286,10 +316,19 @@ def threshold_scan(rows: list[dict]) -> None:
         table.add_row(f"{threshold:.2f}", f"{blocked_bad}",
                       f"[red]{blocked_good}[/red]" if blocked_good else "0")
     console.print(table)
+    # --only can select questions of one kind, so either list may be empty.
+    # The range line is a footnote to the table above; a missing half is worth
+    # a word, never worth losing the run's report to an IndexError.
     scores_bad = sorted(r["best_score"] for r in rows if not r["answerable"])
     scores_good = sorted(r["best_score"] for r in rows if r["answerable"])
-    console.print(f"Best-match scores - answerable: {scores_good[0]:.2f} to {scores_good[-1]:.2f}, "
-                  f"unanswerable: {scores_bad[0]:.2f} to {scores_bad[-1]:.2f}")
+
+    def span(scores: list[float], label: str) -> str:
+        if not scores:
+            return f"{label}: none in this run"
+        return f"{label}: {scores[0]:.2f} to {scores[-1]:.2f}"
+
+    console.print(f"Best-match scores - {span(scores_good, 'answerable')}, "
+                  f"{span(scores_bad, 'unanswerable')}")
 
 
 def main() -> int:
