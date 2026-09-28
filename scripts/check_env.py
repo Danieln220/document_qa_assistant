@@ -19,6 +19,11 @@ from pathlib import Path
 # Make `app` importable when this script is run directly from the project root.
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Fail with an explanation, not a ModuleNotFoundError, when run with the wrong Python.
+from app.venv_check import ensure_venv  # noqa: E402
+ensure_venv()
+
+
 from app.config import PROJECT_ROOT, settings  # noqa: E402
 
 # Pip package names whose installed version we want to report.

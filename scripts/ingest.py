@@ -18,6 +18,11 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+# Fail with an explanation, not a ModuleNotFoundError, when run with the wrong Python.
+from app.venv_check import ensure_venv  # noqa: E402
+ensure_venv()
+
+
 from rich.console import Console  # noqa: E402
 from rich.table import Table  # noqa: E402
 

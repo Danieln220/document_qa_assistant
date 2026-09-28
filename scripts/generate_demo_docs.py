@@ -27,6 +27,13 @@ import textwrap
 from dataclasses import dataclass
 from pathlib import Path
 
+sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
+
+# Fail with an explanation, not a ModuleNotFoundError, when run with the wrong Python.
+from app.venv_check import ensure_venv  # noqa: E402
+ensure_venv()
+
+
 import pymupdf as fitz  # PyMuPDF: used here to turn PDF pages into images for the "scanned" copy
 from docx import Document
 from docx.shared import Pt
