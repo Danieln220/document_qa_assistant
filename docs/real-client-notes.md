@@ -1,92 +1,57 @@
-# Taking this to a real company
+# Using it with real company documents
 
-Written 2026-09-22, from what the demo's evaluation run actually showed. The demo proves the
-method; this file is what changes when the documents belong to a real business. Phase 4's
-HANDOFF template draws on it, and so should any quote.
+Notes from the demo test run (2026-09-22) and what would change with a real company's documents.
 
-## What the demo measured
+## Demo results
 
-20 questions against 5 documents (44 passages):
+20 questions, 5 documents (44 passages):
 
-| Measure | Result |
+| | Result |
 |---|---|
-| Right document found | 14/15 (93%) |
-| Answers correct | 9/15 complete, 6 correct-but-brief, **0 wrong** |
-| Unanswerable questions refused | **5/5** |
-| Invented answers | **0** |
-| Real questions wrongly refused | **0** |
+| Right document found | 14 of 15 |
+| Correct answers | 9 of 15 full, 6 correct but short, 0 wrong |
+| Unanswerable questions refused | 5 of 5 |
+| Made-up answers | 0 |
+| Real questions wrongly refused | 0 |
 
-## What stays the same at a real company
+The 6 "partial" answers were right but left out a detail, because the prompt asks for 2-3 sentences. That's easy to change if longer answers are wanted.
 
-- **Short answers.** Six answers were graded "partial" only because they left out a secondary
-  detail (6 sick days, correct, without adding that they do not carry over). That is the prompt
-  asking for two or three sentences, which suits someone at a counter with a customer waiting.
-  It behaves the same with 5 documents or 500, and it is a one-line prompt change if the client
-  prefers fuller answers. **Ask them during setup.**
-- **The quote check.** Every quote is verified against the document text, so it does not get
-  weaker as the document set grows. This is what keeps invented answers at zero.
+## What gets harder with more documents
 
-## What gets harder, and why
+The demo picks the best 4 passages out of 44. With 50 real documents there could be around 2,000, which makes finding the right one harder. Real documents also bring problems the demo doesn't have:
 
-**1. Finding the right passage.** The demo picks the best 4 passages out of 44. A client with
-50 documents has perhaps 2,000, and picking 4 out of 2,000 is a much harder job. Real document
-sets also contain things the demo's do not:
+- Several versions of the same document (2024, 2025, "FINAL v2"). This is the worst one, because an answer from an old version looks just as correct.
+- Internal names that don't match the documents (staff say "the yellow form", the document says "Form RER-114")
+- Tables, which don't come out of PDFs well
+- Bad scans, like phone photos or faxes
 
-- **Near-duplicate versions** ("Rental Agreement 2024 / 2025 / 2026 FINAL v2"). The worst
-  failure mode in practice: a confident answer taken from a superseded policy looks exactly
-  like a correct one.
-- **Jargon** - staff ask about "the yellow form", the document says "Form RER-114".
-- **Tables and spreadsheets**, which survive PDF extraction badly.
-- **Poor scans** - phone photos at an angle, faxes, handwriting in margins. The demo's scan is
-  machine-generated and clean, so OCR accuracy on real scans will be lower.
+The relevance score also doesn't separate answerable from unanswerable questions very well. In the demo, answerable questions scored 0.62-0.79 and unanswerable ones 0.55-0.71. The refusals mostly come from the model only seeing the retrieved passages and from the quote check, not from the score.
 
-**2. The relevance threshold does less work, not more.** More documents means more passages that
-are *about* the right topic without containing the answer - precisely the case where the score
-stays high and the answer is not there. In the demo, answerable questions scored 0.62-0.79 and
-unanswerable ones 0.55-0.71: overlapping ranges, so no cut-off separates them. Refusal rests on
-the model being shown only the retrieved passages, and on the quote check. Neither weakens with
-scale.
+## Setting it up for a company
 
-## The process for a real job
+1. Load their documents first and look for duplicates and unreadable scans
+2. Agree on one current version of each document and archive the rest
+3. Get 20 real questions from staff, plus 5 the documents don't cover, and use them as the test set
+4. Adjust `TOP_K`, chunk size and the threshold against that test set, re-testing after each change
+5. Write down the known limitations and give them to the client
 
-1. **Ingest and inspect before answering anything.** Count the documents, list the duplicate
-   versions, find the unreadable scans. Half the problems appear before the first question.
-2. **Agree one current version per topic.** The biggest quality win available, and it costs
-   nothing: the client names the authoritative file and archives the rest.
-3. **Build the evaluation set from their questions.** Ask the owner for the 20 questions staff
-   actually ask, plus 5 they know are not covered. This is already the Standard tier deliverable.
-4. **Tune against that set** - `TOP_K`, chunk size, threshold - and re-measure after each change.
-   Never tune on a hunch.
-5. **Hand over the known limits in writing.** A limitation stated up front is a specification; the
-   same limitation discovered later is a complaint.
+## Questions to ask first
 
-## Ask these before quoting
+- How many documents, and what formats?
+- Any scans? How good are they?
+- Is there one current version of each policy?
+- Should everyone see everything, or should some files (like HR) be restricted?
+- What languages?
+- About how many questions a day?
 
-They change the price:
+## Settings
 
-- How many documents, and in what formats?
-- Any scans? Clean, or phone photos?
-- One current version of each policy, or several?
-- Does everyone see everything, or should HR files be restricted? (Premium tier - the index
-  already records which folder each passage came from, ready for this.)
-- One language, or more?
-- Roughly how many questions a day? (Sets the API cost; see `costs-and-limits.md`.)
-
-## Settings to revisit for a real client
-
-| Setting | Demo | Real client |
+| Setting | Demo | Real company |
 |---|---|---|
-| `TOP_K` | 4, forced by the free tier's token limit | 6-8 on a paid account. The demo's one retrieval miss was a passage ranked just outside the top 4. |
-| `RELEVANCE_THRESHOLD` | 0.5 | Leave at 0.5 unless their own eval set says otherwise. Raising it refuses real questions. |
-| Answer length | 2-3 sentences | Ask the client. |
+| `TOP_K` | 4 (because of the free plan limit) | 6-8 on a paid plan. The one miss in the demo was just outside the top 4. |
+| `RELEVANCE_THRESHOLD` | 0.5 | Keep 0.5 unless their test set says otherwise |
+| Answer length | 2-3 sentences | Ask the client |
 
-## How to say it on a sales call
+## Keeping it up to date
 
-> "It refuses in two ways: it won't answer if nothing in your documents looks relevant, and it
-> won't answer if it can't quote a real line from your file. We test that with a set of questions
-> from your team, including ones your documents can't answer, and you see the scores."
-
-## Worth selling afterwards
-
-Answers go stale when policies change and nobody re-indexes. A small recurring "document health"
-check - re-ingest, re-run the evaluation set, report - is an easy retainer and genuinely useful.
+Answers go out of date when a policy changes and nobody re-indexes. It's worth re-running the indexing and the test set every so often.

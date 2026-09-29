@@ -1,14 +1,14 @@
 # Demo facts: Ridgeline Equipment Rentals (fictional)
 
-Internal cheat sheet for the demo and the eval set. It is **not** ingested, because it
-lives outside `documents/`. It records the key facts planted in the documents, and the
-topics that are **deliberately missing** so the assistant has to refuse them.
+The main facts in the demo documents, and the topics left out on purpose so the
+assistant has to refuse them. Used for the demo and the test questions. This file is
+not indexed because it's outside `documents/`.
 
 ## Company
 - Ridgeline Equipment Rentals, LLC. Boise, Idaho. Three branches: Boise Main Yard, Nampa, Twin Falls.
 - 24/7 breakdown hotline (208) 555-0199. Main counter (208) 555-0142.
 
-## Key planted facts (document -> fact)
+## Facts in the documents
 - Rental Agreement: late return = 1.5x daily rate for each day or part-day late, after a 59-minute grace period.
 - Rental Agreement: EX-35 mini excavator daily rate $385. So 2 days late = 2 x 1.5 x $385 = $1,155.
 - Returns & Damages Policy (scanned): $35 late-return administration fee per contract, on top of late charges.
@@ -22,7 +22,7 @@ topics that are **deliberately missing** so the assistant has to refuse them.
 - Employee Handbook: vacation is 10 days (years 1-2), 15 days (years 3-5), 20 days (6+). 6 sick days.
 - Branch FAQ: Twin Falls is closed on Saturdays.
 
-## Deliberately missing (the assistant must refuse)
+## Not in the documents (should be refused)
 - Parental / maternity / paternity leave (the Handbook covers vacation, sick, bereavement and jury duty only).
 - Retirement plan / 401(k) match.
 - Selling used equipment.
